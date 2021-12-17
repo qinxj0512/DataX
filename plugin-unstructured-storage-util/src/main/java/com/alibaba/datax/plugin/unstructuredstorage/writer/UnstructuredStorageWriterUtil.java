@@ -7,11 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
@@ -131,16 +127,21 @@ public class UnstructuredStorageWriterUtil {
         List<Configuration> writerSplitConfigs = new ArrayList<Configuration>();
         String filePrefix = writerSliceConfig.getString(Key.FILE_NAME);
 
+        DateFormat df = new SimpleDateFormat("yyyyMMddhhmmssSSS") ;
+        Calendar cld = Calendar.getInstance();
+        cld.set(Calendar.DATE, cld.get(Calendar.DATE)-1);
+        String timeStamp = df.format(cld.getTime()) ;
+
         String fileSuffix;
         for (int i = 0; i < mandatoryNumber; i++) {
             // handle same file name
             Configuration splitedTaskConfig = writerSliceConfig.clone();
             String fullFileName = null;
-            fileSuffix = UUID.randomUUID().toString().replace('-', '_');
-            fullFileName = String.format("%s__%s", filePrefix, fileSuffix);
+            // fileSuffix = UUID.randomUUID().toString().replace('-', '_');
+            fullFileName = String.format("%s_%s", timeStamp, filePrefix);
             while (allFileExists.contains(fullFileName)) {
                 fileSuffix = UUID.randomUUID().toString().replace('-', '_');
-                fullFileName = String.format("%s__%s", filePrefix, fileSuffix);
+                fullFileName = String.format("%s_%s_%s", timeStamp, filePrefix, fileSuffix);
             }
             allFileExists.add(fullFileName);
             splitedTaskConfig.set(Key.FILE_NAME, fullFileName);
